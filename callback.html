@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>授权回调中...</title>
+</head>
+<body>
+    <p>正在跳转，请稍候...</p>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        if (code) {
+            window.location.href = `index.html?code=${code}`;
+        } else {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
