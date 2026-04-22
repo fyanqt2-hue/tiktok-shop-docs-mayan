@@ -1,14 +1,132 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <title>我的TikTok店铺管理工具</title>
+    <meta charset="UTF-8">
+    <title>TikTok店铺管理工具 - 授权演示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+        }
+        button {
+            background-color: #25F4EE;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #20e0da;
+        }
+        .info {
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h1>我的TikTok店铺管理工具</h1>
+    <h1>🤖 TikTok店铺管理工具</h1>
     <p>本应用帮助TikTok商家高效管理店铺：同步商品、更新库存、处理订单、回复客户消息。</p>
-    <p>
-        <a href="terms-of-service.html">服务条款</a> | 
-        <a href="privacy-policy.html">隐私政策</a>
-    </p>
+
+    <div id="content">
+        <button id="loginBtn">🔐 用TikTok账号登录</button>
+    </div>
+
+    <div id="result" class="info" style="display:none;">
+        <h3>📋 授权结果：</h3>
+        <div id="resultContent"></div>
+    </div>
+
+    <script>
+        // ========== 请在这里填写你的 TikTok 应用 Client Key ==========
+        const CLIENT_KEY = 'sbawc414bmmbp92syd';  // 替换成你的 Client Key
+        const REDIRECT_URI = 'https://fyanqt2-hue.github.io/tiktok-shop-docs-mayan/callback.html';
+        // ============================================================
+
+        // TikTok OAuth 授权地址
+        const AUTH_URL = 'https://www.tiktok.com/auth/authorize/';
+        
+        // 需要的权限范围
+        const SCOPES = [
+            'user.info.basic',
+            'seller.order.read',
+            'seller.order.write',
+            'seller.product.read',
+            'seller.product.write'
+        ].join(',');
+
+        // 构建授权链接
+        function buildAuthUrl() {
+            const params = new URLSearchParams({
+                client_key: CLIENT_KEY,
+                response_type: 'code',
+                redirect_uri: REDIRECT_URI,
+                scope: SCOPES
+            });
+            return `${AUTH_URL}?${params.toString()}`;
+        }
+
+        // 处理页面加载：检查URL中是否有授权码
+        function handleCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const error = urlParams.get('error');
+
+            if (error) {
+                showResult('error', `授权失败: ${error}`);
+                return;
+            }
+
+            if (code) {
+                showResult('success', `
+                    <p>✅ 授权成功！</p>
+                    <p><strong>授权码 (code):</strong> <code>${code}</code></p>
+                    <p>⚠️ 请保存这个授权码，下一步需要用这个code换取access_token。</p>
+                    <p>📌 获取access_token后，就可以调用TikTok API管理你的店铺了。</p>
+                `);
+                document.getElementById('loginBtn').style.display = 'none';
+                return;
+            }
+
+            // 没有code，显示登录按钮
+            document.getElementById('loginBtn').onclick = function() {
+                window.location.href = buildAuthUrl();
+            };
+        }
+
+        function showResult(type, content) {
+            const resultDiv = document.getElementById('result');
+            const resultContent = document.getElementById('resultContent');
+            resultDiv.className = type === 'success' ? 'success' : 'error';
+            resultDiv.style.display = 'block';
+            resultContent.innerHTML = content;
+        }
+
+        // 页面加载时执行
+        handleCallback();
+    </script>
 </body>
 </html>
